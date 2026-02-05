@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { SearchBar } from './SearchBar';
 import { PenSquare, LogOut, User } from 'lucide-react';
 
 export const Navbar = () => {
@@ -16,12 +17,16 @@ export const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-border/50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center" data-testid="logo-link">
+        <div className="flex justify-between items-center h-16 gap-4">
+          <Link to="/" className="flex items-center flex-shrink-0" data-testid="logo-link">
             <h1 className="font-serif font-bold text-2xl text-primary">Oyun Yazarları</h1>
           </Link>
           
-          <div className="flex items-center gap-4">
+          <div className="flex-1 max-w-xl mx-4">
+            <SearchBar />
+          </div>
+          
+          <div className="flex items-center gap-3 flex-shrink-0">
             {user ? (
               <>
                 <Button
