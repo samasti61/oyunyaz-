@@ -30,6 +30,7 @@ const HomePage = () => {
     fetchCategories();
     fetchReviews();
     fetchPopularGames();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [selectedCategory, currentPage]);
 
   useEffect(() => {
