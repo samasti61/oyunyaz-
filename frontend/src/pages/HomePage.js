@@ -48,11 +48,19 @@ const HomePage = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
+      const skip = (currentPage - 1) * reviewsPerPage;
       const url = selectedCategory === 'all' 
-        ? `${API}/reviews`
-        : `${API}/reviews?category=${selectedCategory}`;
+        ? `${API}/reviews?skip=${skip}&limit=${reviewsPerPage}`
+        : `${API}/reviews?category=${selectedCategory}&skip=${skip}&limit=${reviewsPerPage}`;
       const response = await axios.get(url);
       setReviews(response.data);
+      
+      // Get total count
+      const countUrl = selectedCategory === 'all'
+        ? `${API}/reviews`
+        : `${API}/reviews?category=${selectedCategory}`;
+      const countResponse = await axios.get(countUrl);
+      setTotalReviews(countResponse.data.length);
     } catch (error) {
       console.error('Failed to fetch reviews:', error);
       setReviews([]);
