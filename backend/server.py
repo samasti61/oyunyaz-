@@ -89,6 +89,8 @@ class ReviewCreate(BaseModel):
     game_name: str
     category: str
     tags: List[str] = []
+    rating: Optional[int] = Field(None, ge=1, le=10)
+    cover_image: Optional[str] = None
 
 class ReviewUpdate(BaseModel):
     title: Optional[str] = None
@@ -96,6 +98,8 @@ class ReviewUpdate(BaseModel):
     game_name: Optional[str] = None
     category: Optional[str] = None
     tags: Optional[List[str]] = None
+    rating: Optional[int] = Field(None, ge=1, le=10)
+    cover_image: Optional[str] = None
 
 class Comment(BaseModel):
     model_config = ConfigDict(extra="ignore")
