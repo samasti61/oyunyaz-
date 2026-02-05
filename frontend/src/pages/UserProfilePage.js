@@ -78,10 +78,10 @@ const UserProfilePage = () => {
 
   if (loading) {
     return (
-      <div className=\"min-h-screen\">
+      <div className="min-h-screen">
         <Navbar />
-        <div className=\"flex items-center justify-center py-20\">
-          <p className=\"text-muted-foreground\">Yükleniyor...</p>
+        <div className="flex items-center justify-center py-20">
+          <p className="text-muted-foreground">Yükleniyor...</p>
         </div>
       </div>
     );
