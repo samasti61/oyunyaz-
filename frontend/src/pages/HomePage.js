@@ -225,14 +225,13 @@ const HomePage = () => {
 
         {/* Fun Stats Bar */}
         <motion.div 
-          className="grid grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-2 gap-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
           {[
             { label: 'İnceleme', value: reviews.length, icon: Trophy, gradient: 'from-blue-500 to-cyan-500 dark:from-blue-600 dark:to-cyan-700' },
-            { label: 'AI Destekli', value: 'AI', icon: Star, gradient: 'from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-700' },
             { label: 'Topluluk', value: 'CANLI', icon: Flame, gradient: 'from-orange-500 to-red-500 dark:from-orange-600 dark:to-red-700' }
           ].map((stat, idx) => (
             <motion.div
