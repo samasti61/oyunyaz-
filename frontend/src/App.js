@@ -61,14 +61,16 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="App">
-          <AppRoutes />
-          <Toaster position="top-center" />
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="App">
+            <AppRoutes />
+            <Toaster position="top-center" />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
