@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 import { Navbar } from '../components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '../context/AuthContext';
-import { Heart, MessageCircle, User, Calendar, Edit, Trash2, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, User, Calendar, Edit, Trash2, Sparkles, Star, Gamepad2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -144,10 +144,10 @@ const ReviewDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-950/50 dark:to-indigo-950 transition-colors duration-500">
         <Navbar />
         <div className="flex items-center justify-center py-20">
-          <p className="text-muted-foreground">Yükleniyor...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
         </div>
       </div>
     );
@@ -156,204 +156,277 @@ const ReviewDetailPage = () => {
   if (!review) return null;
 
   const isAuthor = user && user.id === review.author_id;
+  const getCategoryColor = (category) => {
+    const colors = {
+      'Aksiyon': 'from-red-500 to-orange-500',
+      'RPG': 'from-purple-500 to-pink-500',
+      'default': 'from-purple-600 to-pink-600'
+    };
+    return colors[category] || colors.default;
+  };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-950/50 dark:to-indigo-950 transition-colors duration-500">
       <Navbar />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Review Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-sans uppercase tracking-wider text-muted-foreground">
-              {review.category}
-            </span>
-            {isAuthor && (
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => navigate(`/edit/${id}`)}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full active:scale-95 transition-all"
-                  data-testid="edit-review-btn"
-                >
-                  <Edit className="w-4 h-4 mr-2" />
-                  Düzenle
-                </Button>
-                <Button
-                  onClick={handleDelete}
-                  variant="destructive"
-                  size="sm"
-                  className="rounded-full active:scale-95 transition-all"
-                  data-testid="delete-review-btn"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Sil
-                </Button>
-              </div>
-            )}
-          </div>
-          
-          <h1 className="font-serif font-bold text-5xl text-foreground mb-4">
-            {review.title}
-          </h1>
-          <h2 className="text-2xl text-primary font-medium mb-6">{review.game_name}</h2>
-          
-          <div className="flex items-center justify-between text-sm text-muted-foreground border-b border-border/50 pb-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <User className="w-4 h-4" />
-                <span
-                  className="hover:text-primary cursor-pointer transition-colors"
-                  onClick={() => navigate(`/profile/${review.author_id}`)}
-                  data-testid="author-link"
-                >
-                  {review.author_username}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                {format(new Date(review.created_at), 'dd MMMM yyyy', { locale: tr })}
-              </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <span className={`px-4 py-2 bg-gradient-to-r ${getCategoryColor(review.category)} text-white text-sm font-bold uppercase tracking-wider rounded-full shadow-lg`}>
+                {review.category}
+              </span>
+              {isAuthor && (
+                <div className="flex gap-2">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      onClick={() => navigate(`/edit/${id}`)}
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full dark:bg-gray-800 dark:border-gray-600"
+                      data-testid="edit-review-btn"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Düzenle
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      onClick={handleDelete}
+                      variant="destructive"
+                      size="sm"
+                      className="rounded-full"
+                      data-testid="delete-review-btn"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Sil
+                    </Button>
+                  </motion.div>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={handleLike}
-                variant="ghost"
-                size="sm"
-                className="rounded-full active:scale-95 transition-all"
-                data-testid="like-btn"
-              >
-                <Heart className={`w-4 h-4 mr-1 ${liked ? 'fill-red-500 text-red-500' : ''}`} />
-                {review.likes_count}
-              </Button>
-              <div className="flex items-center gap-1">
-                <MessageCircle className="w-4 h-4" />
-                <span>{review.comments_count}</span>
+            
+            <h1 className="font-serif font-bold text-5xl mb-4">
+              <span className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                {review.title}
+              </span>
+            </h1>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <h2 className="text-2xl text-purple-600 dark:text-purple-400 font-semibold flex items-center gap-2">
+                <Gamepad2 className="w-6 h-6" />
+                {review.game_name}
+              </h2>
+              {review.rating && (
+                <div className="flex items-center gap-1 px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full shadow-md">
+                  <Star className="w-5 h-5 fill-current" />
+                  <span className="font-bold text-lg">{review.rating}/10</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center justify-between text-sm text-muted-foreground border-b border-border/50 pb-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <User className="w-4 h-4" />
+                  <span
+                    className="hover:text-primary cursor-pointer transition-colors"
+                    onClick={() => navigate(`/profile/${review.author_id}`)}
+                    data-testid="author-link"
+                  >
+                    {review.author_username}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  {format(new Date(review.created_at), 'dd MMMM yyyy', { locale: tr })}
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Review Content with Word Selection */}
-        <Card className="rounded-xl mb-8">
-          <CardContent className="pt-6">
-            <div className="bg-accent/5 border-l-4 border-accent p-4 rounded-lg mb-6">
-              <p className="text-sm text-foreground/80 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-accent" />
-                <span>
-                  <strong>İpucu:</strong> Anlamadığınız bir kelimeyi fare ile seçin, AI anlık açıklama yapacak!
-                </span>
-              </p>
-            </div>
-            <div
-              className="review-content prose max-w-none"
-              onMouseUp={handleWordSelect}
-              data-testid="review-content"
-            >
-              {review.content.split('\n\n').map((paragraph, idx) => (
-                <p key={idx} className="mb-4 text-foreground/80 leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Word Explanation Popover */}
-        {selectedWord && (
-          <div className="fixed bottom-8 right-8 z-50">
-            <Card className="rounded-xl shadow-lg max-w-sm" data-testid="word-explanation">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-serif font-bold text-lg flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-accent" />
-                    {selectedWord}
-                  </h3>
+              <div className="flex items-center gap-4">
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                   <Button
-                    onClick={() => setSelectedWord(null)}
+                    onClick={handleLike}
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 rounded-full"
-                    data-testid="close-explanation-btn"
+                    className="rounded-full"
+                    data-testid="like-btn"
                   >
-                    ×
+                    <Heart className={`w-5 h-5 mr-1 ${liked ? 'fill-red-500 text-red-500' : ''}`} />
+                    {review.likes_count}
                   </Button>
+                </motion.div>
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{review.comments_count}</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {explainLoading ? (
-                  <p className="text-sm text-muted-foreground">Açıklanıyor...</p>
-                ) : (
-                  <p className="text-sm text-foreground/80 leading-relaxed">
-                    {wordExplanation}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Tags */}
-        {review.tags && review.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-8">
-            {review.tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Comments Section */}
-        <div>
-          <h3 className="font-serif font-bold text-2xl text-foreground mb-6">
-            Yorumlar ({review.comments_count})
-          </h3>
-          
-          {user && (
-            <form onSubmit={handleComment} className="mb-8">
-              <Textarea
-                placeholder="Yorumunuzu yazın..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                rows={3}
-                className="rounded-lg mb-2"
-                data-testid="comment-input"
+          {/* Cover Image */}
+          {review.cover_image && (
+            <motion.div 
+              className="mb-8 rounded-3xl overflow-hidden shadow-2xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <img
+                src={review.cover_image}
+                alt={review.game_name}
+                className="w-full max-h-96 object-cover"
+                onError={(e) => { e.target.style.display = 'none'; }}
               />
-              <Button
-                type="submit"
-                className="rounded-full bg-primary hover:bg-primary/90 active:scale-95 transition-all"
-                data-testid="submit-comment-btn"
-              >
-                Yorum Yap
-              </Button>
-            </form>
+            </motion.div>
           )}
-          
-          <div className="space-y-4" data-testid="comments-list">
-            {comments.length === 0 ? (
-              <p className="text-muted-foreground">Henüz yorum yok. İlk yorumu siz yapın!</p>
-            ) : (
-              comments.map((comment) => (
-                <Card key={comment.id} className="rounded-xl">
-                  <CardContent className="pt-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-foreground">{comment.author_username}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(comment.created_at), 'dd MMM yyyy, HH:mm', { locale: tr })}
-                      </span>
-                    </div>
-                    <p className="text-foreground/80">{comment.content}</p>
+
+          {/* Content */}
+          <Card className="rounded-3xl mb-8 border-2 border-white/50 dark:border-gray-700/50 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+            <CardContent className="pt-6">
+              <div className="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-4 rounded-lg mb-6">
+                <p className="text-sm text-foreground/80 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <span>
+                    <strong>İpucu:</strong> Anlamadığınız bir kelimeyi fare ile seçin, AI anlık açıklama yapacak!
+                  </span>
+                </p>
+              </div>
+              <div
+                className="prose max-w-none dark:prose-invert"
+                onMouseUp={handleWordSelect}
+                data-testid="review-content"
+              >
+                {review.content.split('\n\n').map((paragraph, idx) => (
+                  <p key={idx} className="mb-4 text-foreground/90 dark:text-gray-200 leading-relaxed text-lg">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Word Explanation Popup */}
+          {selectedWord && (
+            <motion.div 
+              className="fixed bottom-8 right-8 z-50 max-w-sm"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+            >
+              <Card className="rounded-2xl shadow-2xl border-2 border-purple-300 dark:border-purple-700 bg-white dark:bg-gray-800" data-testid="word-explanation">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-serif font-bold text-lg flex items-center gap-2 text-foreground">
+                      <Sparkles className="w-5 h-5 text-purple-500" />
+                      {selectedWord}
+                    </h3>
+                    <Button
+                      onClick={() => setSelectedWord(null)}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 rounded-full"
+                      data-testid="close-explanation-btn"
+                    >
+                      ×
+                    </Button>
+                  </div>
+                  {explainLoading ? (
+                    <p className="text-sm text-muted-foreground">Açıklanıyor...</p>
+                  ) : (
+                    <p className="text-sm text-foreground/80 dark:text-gray-300 leading-relaxed">
+                      {wordExplanation}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Tags */}
+          {review.tags && review.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              {review.tags.map((tag, idx) => (
+                <motion.span
+                  key={idx}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 text-purple-700 dark:text-purple-300 text-sm font-medium rounded-full border border-purple-200 dark:border-purple-700/50"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  #{tag}
+                </motion.span>
+              ))}
+            </div>
+          )}
+
+          {/* Comments Section */}
+          <div>
+            <h3 className="font-serif font-bold text-3xl text-foreground mb-6 flex items-center gap-2">
+              <MessageCircle className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              Yorumlar ({review.comments_count})
+            </h3>
+            
+            {user && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <form onSubmit={handleComment} className="mb-8">
+                  <Textarea
+                    placeholder="Yorumunuzu yazın..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    rows={3}
+                    className="rounded-xl mb-2 dark:bg-gray-700/50 dark:border-gray-600"
+                    data-testid="comment-input"
+                  />
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      type="submit"
+                      className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600"
+                      data-testid="submit-comment-btn"
+                    >
+                      Yorum Yap
+                    </Button>
+                  </motion.div>
+                </form>
+              </motion.div>
+            )}
+            
+            <div className="space-y-4" data-testid="comments-list">
+              {comments.length === 0 ? (
+                <Card className="rounded-2xl bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm">
+                  <CardContent className="py-8 text-center">
+                    <p className="text-muted-foreground">Henüz yorum yok. İlk yorumu siz yapın!</p>
                   </CardContent>
                 </Card>
-              ))
-            )}
+              ) : (
+                comments.map((comment, idx) => (
+                  <motion.div
+                    key={comment.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                  >
+                    <Card className="rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-white/50 dark:border-gray-700/50">
+                      <CardContent className="pt-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-semibold text-foreground">{comment.author_username}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(comment.created_at), 'dd MMM yyyy, HH:mm', { locale: tr })}
+                          </span>
+                        </div>
+                        <p className="text-foreground/80 dark:text-gray-300">{comment.content}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))
+              )}
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
