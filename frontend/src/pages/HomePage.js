@@ -19,7 +19,12 @@ const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const reviewsPerPage = 10;
   const navigate = useNavigate();
+
+  const totalPages = Math.ceil(totalReviews / reviewsPerPage);
 
   useEffect(() => {
     fetchCategories();
