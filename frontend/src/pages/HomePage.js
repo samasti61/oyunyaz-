@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Navbar } from '../components/Navbar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Heart, MessageCircle, User, Calendar } from 'lucide-react';
+import { Heart, MessageCircle, User, Calendar, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
@@ -39,9 +39,7 @@ const HomePage = () => {
       const url = selectedCategory === 'all' 
         ? `${API}/reviews`
         : `${API}/reviews?category=${selectedCategory}`;
-      console.log('Fetching reviews from:', url);
       const response = await axios.get(url);
-      console.log('Reviews fetched:', response.data);
       setReviews(response.data);
     } catch (error) {
       console.error('Failed to fetch reviews:', error);
@@ -52,28 +50,33 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-paper to-white">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="font-serif font-bold text-5xl md:text-6xl text-foreground mb-6">
-            Oyun İncelemelerini Keşfet
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6">
+            <TrendingUp className="w-4 h-4" />
+            Oyun Topluluğunun Favorisi
+          </div>
+          <h1 className="font-serif font-bold text-5xl md:text-6xl text-foreground mb-4 tracking-tight">
+            En İyi Oyun İncelemelerini
+            <br />
+            <span className="text-primary">Keşfet</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Oyun severler için en detaylı incelemeler ve yaratıcı hikayeler. 
-            Toplulukla paylaş, birlikte yaz.
+            Oyun severler için detaylı incelemeler, yaratıcı hikayeler ve yapay zeka destekli yazım deneyimi.
           </p>
         </div>
 
         {/* Filter */}
         <div className="mb-8 flex justify-center">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-64 rounded-full" data-testid="category-filter">
+            <SelectTrigger className="w-80 rounded-full h-12" data-testid="category-filter">
               <SelectValue placeholder="Kategori seç" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-96">
               <SelectItem value="all">Tüm Kategoriler</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>
@@ -82,7 +85,7 @@ const HomePage = () => {
           </Select>
         </div>
 
-        {/* Reviews Grid */}
+        {/* Reviews List */}
         {loading ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">Yükleniyor...</p>
@@ -99,50 +102,73 @@ const HomePage = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="reviews-grid">
+          <div className="space-y-6" data-testid="reviews-list">
             {reviews.map((review) => (
               <Card
                 key={review.id}
-                className="bg-card rounded-xl border border-border/50 shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden cursor-pointer active:scale-95"
+                className="bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden cursor-pointer active:scale-[0.99]"
                 onClick={() => navigate(`/review/${review.id}`)}
                 data-testid={`review-card-${review.id}`}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-sans uppercase tracking-wider text-muted-foreground">
-                      {review.category}
-                    </span>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      {format(new Date(review.created_at), 'dd MMM yyyy', { locale: tr })}
+                <CardContent className="p-8">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Left side - Main content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider rounded-full">
+                          {review.category}
+                        </span>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Calendar className="w-3 h-3" />
+                          {format(new Date(review.created_at), 'dd MMM yyyy', { locale: tr })}
+                        </div>
+                      </div>
+                      
+                      <h2 className="font-serif font-bold text-3xl text-foreground mb-2 group-hover:text-primary transition-colors">
+                        {review.title}
+                      </h2>
+                      
+                      <p className="text-lg font-medium text-primary mb-4">{review.game_name}</p>
+                      
+                      <p className="text-foreground/70 line-clamp-2 leading-relaxed mb-4">
+                        {review.content}
+                      </p>
+                      
+                      {/* Tags */}
+                      {review.tags && review.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {review.tags.slice(0, 3).map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Right side - Stats */}
+                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-border/50 md:pl-6">
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        <User className="w-4 h-4" />
+                        <span className="font-medium">{review.author_username}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-1 text-sm">
+                          <Heart className="w-5 h-5 text-red-500" />
+                          <span className="font-semibold">{review.likes_count}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm">
+                          <MessageCircle className="w-5 h-5 text-blue-500" />
+                          <span className="font-semibold">{review.comments_count}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <h3 className="font-serif font-bold text-2xl text-foreground/90 mb-2 group-hover:text-primary transition-colors">
-                    {review.title}
-                  </h3>
-                  <p className="text-sm text-primary font-medium">{review.game_name}</p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-foreground/80 line-clamp-3 leading-relaxed">
-                    {review.content}
-                  </p>
                 </CardContent>
-                <CardFooter className="flex items-center justify-between border-t border-border/50 pt-4">
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <User className="w-4 h-4" />
-                    <span>{review.author_username}</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Heart className="w-4 h-4" />
-                      <span>{review.likes_count}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4" />
-                      <span>{review.comments_count}</span>
-                    </div>
-                  </div>
-                </CardFooter>
               </Card>
             ))}
           </div>
