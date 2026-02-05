@@ -516,6 +516,51 @@ async def search(q: str, skip: int = 0, limit: int = 20):
     
     return {"reviews": reviews, "users": users}
 
+# Popular games
+@api_router.get("/popular-games")
+async def get_popular_games(limit: int = 3):
+    # Aggregate reviews by game_name and calculate popularity score
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$game_name",
+                "review_count": {"$sum": 1},
+                "total_likes": {"$sum": "$likes_count"},
+                "avg_rating": {"$avg": "$rating"},
+                "cover_image": {"$first": "$cover_image"}
+            }
+        },
+        {
+            "$addFields": {
+                "popularity_score": {
+                    "$add": [
+                        {"$multiply": ["$review_count", 10]},
+                        {"$multiply": ["$total_likes", 5]},
+                        {"$multiply": [{"$ifNull": ["$avg_rating", 0]}, 2]}
+                    ]
+                }
+            }
+        },
+        {"$sort": {"popularity_score": -1}},
+        {"$limit": limit}
+    ]
+    
+    popular_games = await db.reviews.aggregate(pipeline).to_list(limit)
+    
+    return {
+        "popular_games": [
+            {
+                "game_name": game["_id"],
+                "review_count": game["review_count"],
+                "total_likes": game["total_likes"],
+                "avg_rating": round(game.get("avg_rating", 0), 1) if game.get("avg_rating") else None,
+                "cover_image": game.get("cover_image"),
+                "popularity_score": round(game["popularity_score"], 1)
+            }
+            for game in popular_games
+        ]
+    }
+
 # Include router
 app.include_router(api_router)
 
