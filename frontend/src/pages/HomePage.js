@@ -427,6 +427,90 @@ const HomePage = () => {
             ))}
           </div>
         )}
+
+        {/* Pagination */}
+        {!loading && reviews.length > 0 && totalPages > 1 && (
+          <motion.div 
+            className="mt-12 flex items-center justify-center gap-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <motion.button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 rounded-full font-medium transition-all ${
+                currentPage === 1
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-white dark:bg-gray-800 text-foreground hover:bg-purple-100 dark:hover:bg-purple-900/30 shadow-md hover:shadow-lg'
+              }`}
+              whileHover={currentPage !== 1 ? { scale: 1.05 } : {}}
+              whileTap={currentPage !== 1 ? { scale: 0.95 } : {}}
+            >
+              ← Önceki
+            </motion.button>
+
+            <div className="flex items-center gap-2">
+              {[...Array(totalPages)].map((_, idx) => {
+                const pageNum = idx + 1;
+                // Show first page, last page, current page, and pages around current
+                const showPage = 
+                  pageNum === 1 ||
+                  pageNum === totalPages ||
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1);
+                
+                const showEllipsis = 
+                  (pageNum === currentPage - 2 && currentPage > 3) ||
+                  (pageNum === currentPage + 2 && currentPage < totalPages - 2);
+
+                if (showEllipsis) {
+                  return (
+                    <span key={pageNum} className="px-2 text-muted-foreground">
+                      ...
+                    </span>
+                  );
+                }
+
+                if (!showPage) return null;
+
+                return (
+                  <motion.button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-10 h-10 rounded-full font-semibold transition-all ${
+                      currentPage === pageNum
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
+                        : 'bg-white dark:bg-gray-800 text-foreground hover:bg-purple-100 dark:hover:bg-purple-900/30 shadow-md'
+                    }`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {pageNum}
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            <motion.button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 rounded-full font-medium transition-all ${
+                currentPage === totalPages
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-white dark:bg-gray-800 text-foreground hover:bg-purple-100 dark:hover:bg-purple-900/30 shadow-md hover:shadow-lg'
+              }`}
+              whileHover={currentPage !== totalPages ? { scale: 1.05 } : {}}
+              whileTap={currentPage !== totalPages ? { scale: 0.95 } : {}}
+            >
+              Sonraki →
+            </motion.button>
+
+            <div className="ml-4 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
+              <span className="text-sm text-foreground font-medium">
+                Sayfa <span className="font-bold text-purple-600 dark:text-purple-400">{currentPage}</span> / {totalPages}
+              </span>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
