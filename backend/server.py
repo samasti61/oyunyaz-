@@ -414,7 +414,17 @@ async def ai_assist(request: AIAssistRequest, current_user: User = Depends(get_c
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=f"assist-{current_user.id}-{datetime.now(timezone.utc).timestamp()}",
-            system_message="Sen oyun incelemeleri ve yaratıcı yazım konusunda uzman bir asistansın. Kullanıcılara yazdıkları metinleri geliştirmeleri için kısa ve öz önerilerde bulun. Türkçe cevap ver."
+            system_message="""Sen oyun incelemeleri ve yaratıcı yazım konusunda uzman bir asistansın. 
+            
+KURALLAR:
+- SADECE oyun incelemeleri, oyun analizleri ve yaratıcı yazım hakkında yardım et
+- Küfür, argo, hakaret veya uygunsuz içerik asla kullanma ve öneri verme
+- Kullanıcı küfür veya uygunsuz bir şey isterse kibarca reddet
+- Her zaman profesyonel, yapıcı ve saygılı dil kullan
+- Türkçe cevap ver
+- Kısa ve öz önerilerde bulun (max 3-4 cümle)
+
+Sadece oyun incelemeleri yazımına yardımcı ol."""
         ).with_model("openai", "gpt-5.2")
         
         prompt_text = request.prompt
@@ -435,7 +445,17 @@ async def explain_word(request: WordExplainRequest):
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=f"explain-{datetime.now(timezone.utc).timestamp()}",
-            system_message="Sen oyun terimleri ve kelimeler konusunda uzman bir asistansın. Verilen kelime veya terimi, cümle bağlamında kısa ve anlaşılır şekilde açıkla. Maksimum 2-3 cümle kullan. Türkçe cevap ver."
+            system_message="""Sen oyun terimleri ve kelimeler konusunda uzman bir asistansın.
+
+KURALLAR:
+- SADECE oyun terimleri, oyunlarla ilgili kavramlar ve cümle bağlamındaki kelimeleri açıkla
+- Küfür, argo veya uygunsuz içerikleri açıklama
+- Kullanıcı uygunsuz bir kelime seçerse kibarca reddet: "Bu terimi açıklayamam"
+- Her zaman profesyonel ve eğitici dil kullan
+- Türkçe cevap ver
+- Maksimum 2-3 cümle kullan
+
+Sadece oyunlarla ilgili terimleri açıkla."""
         ).with_model("openai", "gpt-5.2")
         
         prompt = f"Kelime/Terim: '{request.word}'\n\nCümle bağlamı: {request.context}\n\nBu kelime/terimi açıkla:"
