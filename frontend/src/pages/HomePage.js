@@ -30,6 +30,10 @@ const HomePage = () => {
     fetchCategories();
     fetchReviews();
     fetchPopularGames();
+  }, [selectedCategory, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
   }, [selectedCategory]);
 
   const fetchCategories = async () => {
